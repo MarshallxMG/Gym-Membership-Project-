@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Owner Dashboard | GymPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #fff; min-height: 100vh; }
+        
+        .header {
+            background: #111118;
+            border-bottom: 1px solid #222;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 1.25rem; font-weight: 700; color: #818cf8; }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        .user-badge { background: #1e1e2e; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; }
+        .logout-btn { background: #333; border: none; color: #888; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
+        .logout-btn:hover { background: #444; color: #fff; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
+        .tab { padding: 0.75rem 1.5rem; background: transparent; border: 1px solid #333; color: #888; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        .tab:hover { border-color: #555; color: #aaa; }
+        .tab.active { background: #818cf8; border-color: #818cf8; color: #fff; }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: #111118; border: 1px solid #222; padding: 1.5rem; border-radius: 12px; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: #818cf8; }
+        .stat-label { color: #888; font-size: 0.85rem; margin-top: 0.25rem; }
+
+        .card { background: #111118; border: 1px solid #222; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .card-title { font-size: 1rem; font-weight: 600; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #222; }
+        th { color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+
+        .badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+        .badge-success { background: #1a2e1a; color: #4ade80; }
+        .badge-warning { background: #2e2a1a; color: #facc15; }
+        .badge-danger { background: #2e1a1a; color: #f87171; }
+
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+        .btn-primary { background: #818cf8; color: #fff; }
+        .btn-primary:hover { background: #6366f1; }
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8rem; }
+        .btn-icon { background: #222; color: #888; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-icon:hover { background: #333; color: #fff; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: #111118; border: 1px solid #222; border-radius: 12px; padding: 1.5rem; width: 90%; max-width: 400px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .modal-close { background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer; }
+
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem; }
+        input, select { width: 100%; padding: 0.75rem; background: #0a0a0f; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 0.9rem; }
+        input:focus, select:focus { outline: none; border-color: #818cf8; }
+
+        .phone-input { display: flex; gap: 0.5rem; }
+        .phone-prefix { width: 70px; text-align: center; background: #1a1a24; }
+
+        .empty { text-align: center; padding: 2rem; color: #555; }
+        .spinner { width: 24px; height: 24px; border: 2px solid #333; border-top-color: #818cf8; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast { position: fixed; top: 1rem; right: 1rem; padding: 1rem; border-radius: 8px; z-index: 200; }
+        .toast-success { background: #1a2e1a; border: 1px solid #4ade80; color: #4ade80; }
+        .toast-error { background: #2e1a1a; border: 1px solid #f87171; color: #f87171; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🏋️ GymPro</div>
+        <div class="header-right">
+            <div class="user-badge" id="userBadge">Owner</div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" data-section="dashboard">Dashboard</button>
+            <button class="tab" data-section="members">Members</button>
+            <button class="tab" data-section="memberships">Memberships</button>
+            <button class="tab" data-section="notifications">Notifications</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="section active">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="statMembers">-</div>
+                    <div class="stat-label">Total Members</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statActive">-</div>
+                    <div class="stat-label">Active Plans</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statExpiring">-</div>
+                    <div class="stat-label">Expiring Soon</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statRevenue">-</div>
+                    <div class="stat-label">Revenue</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Members -->
+        <div id="members" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">All Members</span>
+                    <button class="btn btn-primary btn-sm" onclick="openMemberModal()">+ Add Member</button>
+                </div>
+                <div id="membersTable"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+        <!-- Memberships -->
+        <div id="memberships" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">All Memberships</span>
+                    <button class="btn btn-primary btn-sm" onclick="openMembershipModal()">+ New Membership</button>
+                </div>
+                <div id="membershipsTable"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div id="notifications" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Notification History</span>
+                    <button class="btn btn-primary btn-sm" onclick="triggerCheck()">Check Now</button>
+                </div>
+                <div id="notificationsTable"><div class="spinner"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Member Modal -->
+    <div class="modal-overlay" id="memberModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span id="memberModalTitle">Add Member</span>
+                <button class="modal-close" onclick="closeMemberModal()">×</button>
+            </div>
+            <form id="memberForm">
+                <input type="hidden" id="memberId">
+                <div class="form-group"><label>Name</label><input type="text" id="memberName" required></div>
+                <div class="form-group"><label>Email</label><input type="email" id="memberEmail" required></div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <div class="phone-input">
+                        <input type="text" class="phone-prefix" value="+91" readonly>
+                        <input type="tel" id="memberPhone" placeholder="9876543210">
+                    </div>
+                </div>
+                <div class="form-group" id="passwordGroup"><label>Password</label><input type="password" id="memberPassword"></div>
+                <button type="submit" class="btn btn-primary" style="width:100%">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Membership Modal -->
+    <div class="modal-overlay" id="membershipModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span id="membershipModalTitle">New Membership</span>
+                <button class="modal-close" onclick="closeMembershipModal()">×</button>
+            </div>
+            <form id="membershipForm">
+                <input type="hidden" id="msId">
+                <div class="form-group"><label>Member</label><select id="msUserId" required></select></div>
+                <div class="form-group">
+                    <label>Plan</label>
+                    <select id="msPlan" onchange="updatePlan()">
+                        <option value="Monthly" data-amount="1500" data-days="30">Monthly - ₹1,500</option>
+                        <option value="Quarterly" data-amount="4000" data-days="90">Quarterly - ₹4,000</option>
+                        <option value="Half-Yearly" data-amount="7000" data-days="180">Half-Yearly - ₹7,000</option>
+                        <option value="Yearly" data-amount="12000" data-days="365">Yearly - ₹12,000</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Start Date</label><input type="date" id="msStart" required></div>
+                <div class="form-group"><label>End Date</label><input type="date" id="msEnd" required></div>
+                <div class="form-group"><label>Amount (₹)</label><input type="number" id="msAmount" required></div>
+                <button type="submit" class="btn btn-primary" style="width:100%">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <script>
+        const API = '/api';
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('authToken');
+        if (!token) window.location.href = '/';
+
+        const user = JSON.parse(localStorage.getItem('adminUser') || localStorage.getItem('userData') || '{}');
+        document.getElementById('userBadge').textContent = user.username || user.name || 'Admin';
+
+        // API helper
+        async function api(endpoint, options = {}) {
+            const res = await fetch(API + endpoint, {
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                ...options
+            });
+            if (res.status === 401 || res.status === 403) { logout(); return null; }
+            return res.json();
+        }
+
+        // Navigation
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.section).classList.add('active');
+                loadSection(tab.dataset.section);
+            });
+        });
+
+        function loadSection(section) {
+            if (section === 'dashboard') loadDashboard();
+            else if (section === 'members') loadMembers();
+            else if (section === 'memberships') loadMemberships();
+            else if (section === 'notifications') loadNotifications();
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            const data = await api('/admin/dashboard');
+            if (data) {
+                document.getElementById('statMembers').textContent = data.totalMembers;
+                document.getElementById('statActive').textContent = data.activeMemberships;
+                document.getElementById('statExpiring').textContent = data.expiringMemberships;
+                document.getElementById('statRevenue').textContent = '₹' + data.totalRevenue.toLocaleString();
+            }
+        }
+
+        // Members
+        async function loadMembers() {
+            const data = await api('/admin/members');
+            const el = document.getElementById('membersTable');
+            if (!data || data.length === 0) {
+                el.innerHTML = '<div class="empty">No members yet</div>';
+                return;
+            }
+            const unique = [...new Map(data.map(m => [m.id, m])).values()];
+            el.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th></th></tr></thead><tbody>
+                ${unique.map(m => `<tr>
+                    <td>${m.name}</td><td>${m.email}</td><td>${m.phone || '-'}</td>
+                    <td>${getBadge(m)}</td>
+                    <td><button class="btn btn-icon btn-sm" onclick="editMember(${m.id})">✏️</button>
+                        <button class="btn btn-icon btn-sm" onclick="deleteMember(${m.id})">🗑️</button></td>
+                </tr>`).join('')}
+            </tbody></table>`;
+        }
+
+        function getBadge(m) {
+            if (!m.end_date) return '<span class="badge">No Plan</span>';
+            const days = Math.ceil((new Date(m.end_date) - new Date()) / 86400000);
+            if (days < 0) return '<span class="badge badge-danger">Expired</span>';
+            if (days <= 7) return '<span class="badge badge-warning">' + days + 'd left</span>';
+            return '<span class="badge badge-success">Active</span>';
+        }
+
+        // Memberships
+        async function loadMemberships() {
+            const data = await api('/admin/memberships');
+            const el = document.getElementById('membershipsTable');
+            if (!data || data.length === 0) { el.innerHTML = '<div class="empty">No memberships</div>'; return; }
+            el.innerHTML = `<table><thead><tr><th>Member</th><th>Plan</th><th>End Date</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+                ${data.map(m => {
+                    const days = Math.ceil((new Date(m.end_date) - new Date()) / 86400000);
+                    const badge = days < 0 ? 'badge-danger' : days <= 7 ? 'badge-warning' : 'badge-success';
+                    const text = days < 0 ? 'Expired' : days <= 7 ? days + 'd left' : 'Active';
+                    return `<tr><td>${m.user_name}</td><td>${m.plan_type}</td><td>${m.end_date}</td><td>₹${m.amount}</td><td><span class="badge ${badge}">${text}</span></td><td><button class="btn btn-sm" onclick="openRenewModal(${m.id}, ${m.user_id}, '${m.user_name}', '${m.plan_type}')" title="Renew">✏️</button></td></tr>`;
+                }).join('')}
+            </tbody></table>`;
+        }
+
+        // Notifications
+        async function loadNotifications() {
+            const data = await api('/admin/notifications');
+            const el = document.getElementById('notificationsTable');
+            if (!data || data.length === 0) { el.innerHTML = '<div class="empty">No notifications sent</div>'; return; }
+            el.innerHTML = `<table><thead><tr><th>Date</th><th>Member</th><th>Message</th></tr></thead><tbody>
+                ${data.map(n => `<tr><td>${new Date(n.created_at).toLocaleDateString()}</td><td>${n.user_name}</td><td>${n.message}</td></tr>`).join('')}
+            </tbody></table>`;
+        }
+
+        async function triggerCheck() {
+            const res = await api('/admin/notifications/check', { method: 'POST' });
+            if (res) toast('success', res.message);
+            loadNotifications();
+            loadDashboard();
+        }
+
+        // Member Modal
+        function openMemberModal() {
+            document.getElementById('memberModalTitle').textContent = 'Add Member';
+            document.getElementById('memberForm').reset();
+            document.getElementById('memberId').value = '';
+            document.getElementById('memberPassword').required = true;
+            document.getElementById('memberModal').classList.add('active');
+        }
+
+        async function editMember(id) {
+            const m = await api('/admin/members/' + id);
+            if (!m) return;
+            document.getElementById('memberModalTitle').textContent = 'Edit Member';
+            document.getElementById('memberId').value = m.id;
+            document.getElementById('memberName').value = m.name;
+            document.getElementById('memberEmail').value = m.email;
+            document.getElementById('memberPhone').value = (m.phone || '').replace('+91', '');
+            document.getElementById('memberPassword').required = false;
+            document.getElementById('memberModal').classList.add('active');
+        }
+
+        function closeMemberModal() { document.getElementById('memberModal').classList.remove('active'); }
+
+        document.getElementById('memberForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('memberId').value;
+            const phone = document.getElementById('memberPhone').value;
+            const data = {
+                name: document.getElementById('memberName').value,
+                email: document.getElementById('memberEmail').value,
+                phone: phone ? '+91' + phone.replace(/^0+/, '') : null,
+                password: document.getElementById('memberPassword').value || undefined
+            };
+            if (!data.password) delete data.password;
+            
+            const res = id 
+                ? await api('/admin/members/' + id, { method: 'PUT', body: JSON.stringify(data) })
+                : await api('/admin/members', { method: 'POST', body: JSON.stringify(data) });
+            
+            if (res && res.success) { toast('success', 'Saved!'); closeMemberModal(); loadMembers(); loadDashboard(); }
+        });
+
+        async function deleteMember(id) {
+            if (!confirm('Delete this member?')) return;
+            const res = await api('/admin/members/' + id, { method: 'DELETE' });
+            if (res && res.success) { toast('success', 'Deleted!'); loadMembers(); loadDashboard(); }
+        }
+
+        // Membership Modal
+        async function openMembershipModal() {
+            document.getElementById('membershipModalTitle').textContent = 'New Membership';
+            document.getElementById('msId').value = '';
+            
+            const members = await api('/admin/members');
+            const sel = document.getElementById('msUserId');
+            const unique = [...new Map(members.map(m => [m.id, m])).values()];
+            sel.innerHTML = '<option value="">Select member...</option>' + unique.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            sel.disabled = false;
+            
+            // Set start to today
+            const now = new Date();
+            document.getElementById('msStart').value = toLocalDate(now);
+            updatePlan();
+            document.getElementById('membershipModal').classList.add('active');
+        }
+
+        function toLocalDate(date) {
+            return date.toISOString().slice(0, 10);
+        }
+
+        function updatePlan() {
+            const opt = document.getElementById('msPlan').selectedOptions[0];
+            const start = new Date(document.getElementById('msStart').value || new Date());
+            const end = new Date(start);
+            end.setDate(end.getDate() + parseInt(opt.dataset.days));
+            document.getElementById('msEnd').value = toLocalDate(end);
+            document.getElementById('msAmount').value = opt.dataset.amount;
+        }
+
+        function closeMembershipModal() { 
+            document.getElementById('membershipModal').classList.remove('active'); 
+            document.getElementById('msId').value = '';
+            document.getElementById('msUserId').disabled = false;
+            document.getElementById('membershipModalTitle').textContent = 'New Membership';
+        }
+
+        // Renew Membership Modal
+        async function openRenewModal(membershipId, userId, userName, planType) {
+            document.getElementById('membershipModalTitle').textContent = 'Renew Membership - ' + userName;
+            document.getElementById('msId').value = membershipId;
+            
+            const members = await api('/admin/members');
+            const sel = document.getElementById('msUserId');
+            const unique = [...new Map(members.map(m => [m.id, m])).values()];
+            sel.innerHTML = unique.map(m => `<option value="${m.id}" ${m.id === userId ? 'selected' : ''}>${m.name}</option>`).join('');
+            sel.disabled = true;
+            
+            // Set plan
+            document.getElementById('msPlan').value = planType;
+            
+            // Set start to today
+            const now = new Date();
+            document.getElementById('msStart').value = toLocalDate(now);
+            updatePlan();
+            document.getElementById('membershipModal').classList.add('active');
+        }
+
+        document.getElementById('membershipForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('msId').value;
+            const isUpdate = id && id !== '';
+            
+            const url = isUpdate ? '/admin/memberships/' + id : '/admin/memberships';
+            const method = isUpdate ? 'PUT' : 'POST';
+            
+            const res = await api(url, {
+                method: method,
+                body: JSON.stringify({
+                    user_id: parseInt(document.getElementById('msUserId').value),
+                    plan_type: document.getElementById('msPlan').value,
+                    start_date: document.getElementById('msStart').value,
+                    end_date: document.getElementById('msEnd').value,
+                    amount: parseFloat(document.getElementById('msAmount').value),
+                    status: 'active'
+                })
+            });
+            if (res && res.success) { 
+                toast('success', isUpdate ? 'Membership renewed!' : 'Membership created!'); 
+                closeMembershipModal(); 
+                loadMemberships(); 
+                loadDashboard(); 
+            }
+        });
+
+        function logout() { localStorage.clear(); window.location.href = '/'; }
+
+        function toast(type, msg) {
+            const el = document.createElement('div');
+            el.className = 'toast toast-' + type;
+            el.textContent = msg;
+            document.getElementById('toastContainer').appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+
+        // Init
+        loadDashboard();
+    </script>
+</body>
+</html>

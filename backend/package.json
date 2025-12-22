@@ -1,0 +1,27 @@
+{
+  "name": "gym-membership-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Gym Membership Management System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.2.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^7.0.11"
+  },
+  "keywords": [
+    "gym",
+    "membership",
+    "notifications"
+  ],
+  "author": "",
+  "license": "ISC"
+}

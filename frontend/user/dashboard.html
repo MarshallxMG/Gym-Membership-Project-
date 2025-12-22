@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Membership | GymPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #fff; min-height: 100vh; }
+        
+        .header {
+            background: #111118;
+            border-bottom: 1px solid #222;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 1.25rem; font-weight: 700; color: #818cf8; }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        .notif-btn { background: #222; border: none; color: #fff; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; position: relative; font-size: 1.1rem; }
+        .notif-btn:hover { background: #333; }
+        .notif-badge { position: absolute; top: -4px; right: -4px; background: #f87171; color: #fff; font-size: 0.65rem; padding: 0.15rem 0.4rem; border-radius: 10px; font-weight: 600; }
+        .user-badge { background: #1e1e2e; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; }
+        .logout-btn { background: #333; border: none; color: #888; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
+        .logout-btn:hover { background: #444; color: #fff; }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 2rem; }
+
+        .welcome { margin-bottom: 2rem; }
+        .welcome h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+        .welcome p { color: #888; }
+
+        .membership-card {
+            background: #111118;
+            border: 1px solid #222;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .plan-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+        .plan-label { color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .plan-name { font-size: 1.5rem; font-weight: 700; margin-top: 0.25rem; }
+        
+        .status { padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .status-active { background: #1a2e1a; color: #4ade80; }
+        .status-warning { background: #2e2a1a; color: #facc15; animation: pulse 2s infinite; }
+        .status-expired { background: #2e1a1a; color: #f87171; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .countdown { text-align: center; margin: 2rem 0; }
+        .countdown-label { color: #888; font-size: 0.85rem; margin-bottom: 1rem; }
+        .countdown-display { display: flex; justify-content: center; gap: 0.75rem; }
+        .countdown-item { background: #0a0a0f; padding: 1rem; border-radius: 12px; min-width: 70px; }
+        .countdown-value { font-size: 1.75rem; font-weight: 700; color: #818cf8; }
+        .countdown-unit { font-size: 0.65rem; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.25rem; }
+
+        .details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding-top: 1.5rem; border-top: 1px solid #222; }
+        .detail { text-align: center; }
+        .detail-label { color: #666; font-size: 0.75rem; margin-bottom: 0.25rem; }
+        .detail-value { font-weight: 600; }
+
+        .no-membership { text-align: center; padding: 3rem; }
+        .no-membership-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+        .card { background: #111118; border: 1px solid #222; border-radius: 12px; padding: 1.5rem; }
+        .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+
+        .profile-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #1a1a1a; }
+        .profile-row:last-child { border-bottom: none; }
+        .profile-label { color: #888; }
+
+        /* Notification Panel */
+        .panel-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 100; }
+        .panel-overlay.open { opacity: 1; visibility: visible; }
+        
+        .notif-panel { position: fixed; top: 0; right: -400px; width: 400px; max-width: 100%; height: 100vh; background: #111118; border-left: 1px solid #222; transition: right 0.3s; z-index: 200; display: flex; flex-direction: column; }
+        .notif-panel.open { right: 0; }
+        .notif-header { padding: 1rem 1.5rem; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+        .notif-close { background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer; }
+        .notif-body { flex: 1; overflow-y: auto; padding: 1rem; }
+        .notif-item { background: #1a1a24; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; border-left: 3px solid #818cf8; }
+        .notif-item.unread { border-left-color: #facc15; }
+        .notif-time { font-size: 0.75rem; color: #666; margin-top: 0.5rem; }
+        .notif-empty { text-align: center; padding: 3rem; color: #555; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🏋️ GymPro</div>
+        <div class="header-right">
+            <button class="notif-btn" onclick="toggleNotifs()">
+                🔔
+                <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+            </button>
+            <div class="user-badge" id="userBadge">Member</div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="welcome">
+            <h1>Hello, <span id="userName">Member</span>! 👋</h1>
+            <p id="welcomeMsg">Here's your membership status</p>
+        </div>
+
+        <div class="membership-card" id="membershipCard">
+            <div style="text-align:center;padding:2rem"><div class="spinner"></div></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">👤 My Profile</div>
+            <div class="profile-row"><span class="profile-label">Name</span><span id="profileName">-</span></div>
+            <div class="profile-row"><span class="profile-label">Email</span><span id="profileEmail">-</span></div>
+            <div class="profile-row"><span class="profile-label">Phone</span><span id="profilePhone">-</span></div>
+            <div class="profile-row"><span class="profile-label">Member Since</span><span id="profileJoined">-</span></div>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div class="panel-overlay" id="panelOverlay" onclick="closeNotifs()"></div>
+    <aside class="notif-panel" id="notifPanel">
+        <div class="notif-header">
+            <span>🔔 Notifications</span>
+            <button class="notif-close" onclick="closeNotifs()">×</button>
+        </div>
+        <div class="notif-body" id="notifList">
+            <div class="notif-empty">No notifications</div>
+        </div>
+    </aside>
+
+    <script>
+        const API = '/api';
+        const token = localStorage.getItem('userToken') || localStorage.getItem('authToken');
+        if (!token) window.location.href = '/';
+
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        document.getElementById('userBadge').textContent = userData.name || 'Member';
+        document.getElementById('userName').textContent = (userData.name || 'Member').split(' ')[0];
+
+        async function api(endpoint) {
+            const res = await fetch(API + endpoint, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (res.status === 401 || res.status === 403) { logout(); return null; }
+            return res.json();
+        }
+
+        async function loadDashboard() {
+            // Profile
+            const profile = await api('/user/profile');
+            if (profile) {
+                document.getElementById('profileName').textContent = profile.name;
+                document.getElementById('profileEmail').textContent = profile.email;
+                document.getElementById('profilePhone').textContent = profile.phone || 'Not set';
+                document.getElementById('profileJoined').textContent = new Date(profile.created_at).toLocaleDateString('en-IN');
+            }
+
+            // Membership
+            const data = await api('/user/membership');
+            const card = document.getElementById('membershipCard');
+
+            if (!data || !data.hasMembership) {
+                card.innerHTML = `<div class="no-membership">
+                    <div class="no-membership-icon">💳</div>
+                    <h3>No Active Membership</h3>
+                    <p style="color:#888;margin-top:0.5rem">Contact the front desk to get started!</p>
+                </div>`;
+                document.getElementById('welcomeMsg').textContent = 'Get a membership to start your fitness journey!';
+                return;
+            }
+
+            const m = data.membership;
+            const days = m.daysRemaining;
+            const isExpired = days < 0;
+            const isExpiring = days <= 7 && days >= 0;
+
+            let statusClass = 'status-active', statusText = 'Active';
+            if (isExpired) { statusClass = 'status-expired'; statusText = 'Expired'; }
+            else if (isExpiring) { statusClass = 'status-warning'; statusText = 'Expiring Soon'; }
+
+            const endDate = new Date(m.end_date);
+            const now = new Date();
+            const diff = Math.max(0, endDate - now);
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff % 86400000) / 3600000);
+            const min = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+
+            card.innerHTML = `
+                <div class="plan-header">
+                    <div><div class="plan-label">Current Plan</div><div class="plan-name">${m.plan_type}</div></div>
+                    <div class="status ${statusClass}">${statusText}</div>
+                </div>
+                <div class="countdown">
+                    <div class="countdown-label">${isExpired ? 'Membership Expired' : 'Time Remaining'}</div>
+                    <div class="countdown-display">
+                        <div class="countdown-item"><div class="countdown-value" id="cDays">${d}</div><div class="countdown-unit">Days</div></div>
+                        <div class="countdown-item"><div class="countdown-value" id="cHours">${h}</div><div class="countdown-unit">Hours</div></div>
+                        <div class="countdown-item"><div class="countdown-value" id="cMins">${min}</div><div class="countdown-unit">Mins</div></div>
+                        <div class="countdown-item"><div class="countdown-value" id="cSecs">${s}</div><div class="countdown-unit">Secs</div></div>
+                    </div>
+                </div>
+                <div class="details">
+                    <div class="detail"><div class="detail-label">Start Date</div><div class="detail-value">${formatDate(m.start_date)}</div></div>
+                    <div class="detail"><div class="detail-label">End Date</div><div class="detail-value">${formatDate(m.end_date)}</div></div>
+                    <div class="detail"><div class="detail-label">Amount</div><div class="detail-value">₹${m.amount.toLocaleString()}</div></div>
+                </div>
+            `;
+
+            if (!isExpired) startCountdown(endDate);
+            
+            if (isExpired) document.getElementById('welcomeMsg').textContent = 'Your membership has expired. Please renew!';
+            else if (isExpiring) document.getElementById('welcomeMsg').textContent = `Your membership expires in ${days} days!`;
+            else document.getElementById('welcomeMsg').textContent = 'Keep up the great work! 💪';
+
+            // Notifications
+            loadNotifications();
+        }
+
+        function startCountdown(endDate) {
+            setInterval(() => {
+                const diff = Math.max(0, endDate - new Date());
+                document.getElementById('cDays').textContent = Math.floor(diff / 86400000);
+                document.getElementById('cHours').textContent = Math.floor((diff % 86400000) / 3600000);
+                document.getElementById('cMins').textContent = Math.floor((diff % 3600000) / 60000);
+                document.getElementById('cSecs').textContent = Math.floor((diff % 60000) / 1000);
+            }, 1000);
+        }
+
+        async function loadNotifications() {
+            const data = await api('/user/notifications');
+            const badge = document.getElementById('notifBadge');
+            const list = document.getElementById('notifList');
+
+            if (data && data.unreadCount > 0) {
+                badge.textContent = data.unreadCount;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+
+            if (!data || data.notifications.length === 0) {
+                list.innerHTML = '<div class="notif-empty">No notifications</div>';
+                return;
+            }
+
+            list.innerHTML = data.notifications.map(n => `
+                <div class="notif-item ${n.is_read ? '' : 'unread'}" onclick="markRead(${n.id}, this)">
+                    <div>${n.message}</div>
+                    <div class="notif-time">${new Date(n.created_at).toLocaleString('en-IN')}</div>
+                </div>
+            `).join('');
+        }
+
+        async function markRead(id, el) {
+            await fetch(API + '/user/notifications/' + id + '/read', {
+                method: 'PUT',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            el.classList.remove('unread');
+            const badge = document.getElementById('notifBadge');
+            const count = parseInt(badge.textContent) - 1;
+            if (count <= 0) badge.style.display = 'none';
+            else badge.textContent = count;
+        }
+
+        function toggleNotifs() {
+            document.getElementById('notifPanel').classList.add('open');
+            document.getElementById('panelOverlay').classList.add('open');
+        }
+
+        function closeNotifs() {
+            document.getElementById('notifPanel').classList.remove('open');
+            document.getElementById('panelOverlay').classList.remove('open');
+        }
+
+        function formatDate(d) {
+            return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function logout() { localStorage.clear(); window.location.href = '/'; }
+
+        loadDashboard();
+    </script>
+    <style>.spinner{width:24px;height:24px;border:2px solid #333;border-top-color:#818cf8;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto}@keyframes spin{to{transform:rotate(360deg)}}</style>
+</body>
+</html>

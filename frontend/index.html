@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymPro - Membership Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: url('/images/Gym.png') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(20,20,40,0.75) 50%, rgba(0,0,0,0.85) 100%);
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .logo-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            display: block;
+            filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.5));
+        }
+
+        .brand-name {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7c331 50%, #ff6b35 100%);
+            background-size: 200% auto;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s ease infinite;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+
+        .tagline {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .cards {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            width: 320px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(255,107,53,0.5);
+            box-shadow: 0 30px 60px rgba(255,107,53,0.2), 0 0 60px rgba(255,107,53,0.1);
+        }
+
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .card-admin .card-icon { 
+            filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.5));
+        }
+
+        .card-user .card-icon { 
+            filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.5));
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-admin:hover .card-title { color: #ff6b35; }
+        .card-user:hover .card-title { color: #4ade80; }
+
+        .card-desc {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .card-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            margin-top: 1.5rem;
+            transition: all 0.3s;
+            font-size: 1.5rem;
+        }
+
+        .card:hover .card-arrow {
+            background: linear-gradient(135deg, #ff6b35, #f7c331);
+            transform: translateX(5px);
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 2rem;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+            z-index: 2;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Floating particles effect */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255,107,53,0.6);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 2.5s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: 4.5s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 1.5s;"></div>
+    </div>
+
+    <div class="container">
+        <div class="brand">
+            <span class="logo-icon">🏋️</span>
+            <h1 class="brand-name">GymPro</h1>
+            <p class="tagline">Membership Management System</p>
+        </div>
+
+        <div class="cards">
+            <a href="/admin/index.html" class="card card-admin">
+                <span class="card-icon">👔</span>
+                <h2 class="card-title">Gym Owner Portal</h2>
+                <p class="card-desc">Manage members, track memberships, and monitor your gym business</p>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="/user/index.html" class="card card-user">
+                <span class="card-icon">💪</span>
+                <h2 class="card-title">Member Portal</h2>
+                <p class="card-desc">View your membership status, receive notifications, and track progress</p>
+                <div class="card-arrow">→</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2024 GymPro. Built for Fitness.
+    </div>
+</body>
+</html>
