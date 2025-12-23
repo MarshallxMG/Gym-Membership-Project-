@@ -2,6 +2,12 @@
 
 A professional, full-featured gym membership management system with automated email notifications.
 
+## 🌐 Live Demo
+
+**🔗 [https://gym-membership-project-lhfv.onrender.com](https://gym-membership-project-lhfv.onrender.com)**
+
+> ⚠️ **Note**: The site is hosted on Render's free tier. First load may take **~1 minute** to wake up the server.
+
 ---
 
 ## ✨ Features
